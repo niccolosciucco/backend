@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
-// TODO: configurazione temporanea, da sostituire con la sicurezza JWT 
+// TODO: configurazione temporanea, da sostituire con la sicurezza JWT
 @Configuration
 public class SecurityConfig {
 
