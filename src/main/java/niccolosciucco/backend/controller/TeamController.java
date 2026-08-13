@@ -2,7 +2,7 @@ package niccolosciucco.backend.controller;
 
 import lombok.RequiredArgsConstructor;
 import niccolosciucco.backend.entity.Team;
-import niccolosciucco.backend.repository.TeamRepository;
+import niccolosciucco.backend.service.TeamService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,10 +14,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TeamController {
 
-    private final TeamRepository teamRepository;
+    private final TeamService teamService;
 
     @GetMapping
     public List<Team> getAll() {
-        return teamRepository.findAll();
+        return teamService.getAll();
     }
 }
