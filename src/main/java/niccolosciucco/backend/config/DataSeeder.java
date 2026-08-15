@@ -2,11 +2,9 @@ package niccolosciucco.backend.config;
 
 import lombok.RequiredArgsConstructor;
 import niccolosciucco.backend.entity.*;
-import niccolosciucco.backend.repository.CircuitoRepository;
-import niccolosciucco.backend.repository.EventoRepository;
-import niccolosciucco.backend.repository.PilotaRepository;
-import niccolosciucco.backend.repository.TeamRepository;
+import niccolosciucco.backend.repository.*;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -20,11 +18,14 @@ public class DataSeeder implements CommandLineRunner {
     private final PilotaRepository pilotaRepository;
     private final CircuitoRepository circuitoRepository;
     private final EventoRepository eventoRepository;
+    private final UtenteRepository utenteRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void run(String... args) {
         seedTeamsEPiloti();
         seedCircuitiEEventi();
+        seedUtenti();
     }
 
     private void seedTeamsEPiloti() {
@@ -109,5 +110,25 @@ public class DataSeeder implements CommandLineRunner {
         ));
 
         System.out.println("Seed circuiti/eventi: " + circuitoRepository.count() + " circuiti, " + eventoRepository.count() + " eventi.");
+    }
+
+    private void seedUtenti() {
+        if (utenteRepository.count() > 0) {
+            return;
+        }
+
+        utenteRepository.save(Utente.builder()
+                .email("admin@pitwallpro.it")
+                .passwordHash(passwordEncoder.encode("admin123"))
+                .role(RuoloUtente.ADMIN)
+                .build());
+
+        utenteRepository.save(Utente.builder()
+                .email("viewer@pitwallpro.it")
+                .passwordHash(passwordEncoder.encode("viewer123"))
+                .role(RuoloUtente.USER)
+                .build());
+
+        System.out.println("Seed utenti: " + utenteRepository.count() + " utenti.");
     }
 }
