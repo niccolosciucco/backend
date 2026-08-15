@@ -1,13 +1,15 @@
 package niccolosciucco.backend.config;
 
 import lombok.RequiredArgsConstructor;
-import niccolosciucco.backend.entity.Pilota;
-import niccolosciucco.backend.entity.Team;
+import niccolosciucco.backend.entity.*;
+import niccolosciucco.backend.repository.CircuitoRepository;
+import niccolosciucco.backend.repository.EventoRepository;
 import niccolosciucco.backend.repository.PilotaRepository;
 import niccolosciucco.backend.repository.TeamRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Component
@@ -16,11 +18,18 @@ public class DataSeeder implements CommandLineRunner {
 
     private final TeamRepository teamRepository;
     private final PilotaRepository pilotaRepository;
+    private final CircuitoRepository circuitoRepository;
+    private final EventoRepository eventoRepository;
 
     @Override
     public void run(String... args) {
+        seedTeamsEPiloti();
+        seedCircuitiEEventi();
+    }
+
+    private void seedTeamsEPiloti() {
         if (teamRepository.count() > 0) {
-            return; // dati già presenti, non duplicare ad ogni riavvio
+            return;
         }
 
         Team mclaren = teamRepository.save(Team.builder().name("McLaren").base("Woking, Regno Unito").principal("Andrea Stella").foundedYear(1963).colorHex("#FF8000").build());
@@ -60,6 +69,45 @@ public class DataSeeder implements CommandLineRunner {
                 Pilota.builder().name("Valtteri Bottas").team(cadillac).nationality("FIN").number(77).build()
         ));
 
-        System.out.println("Dati di partenza inseriti: " + teamRepository.count() + " team, " + pilotaRepository.count() + " piloti.");
+        System.out.println("Seed team/piloti: " + teamRepository.count() + " team, " + pilotaRepository.count() + " piloti.");
+    }
+
+    private void seedCircuitiEEventi() {
+        if (circuitoRepository.count() > 0) {
+            return;
+        }
+
+        Circuito albertPark = circuitoRepository.save(Circuito.builder().name("Albert Park Circuit").location("Melbourne").country("Australia").lengthKm(5.278).laps(58).turns(14).drsZones(4).lapRecordTime("1:19.813").lapRecordDriver("Charles Leclerc").lapRecordYear(2024).description("Circuito cittadino attorno a un lago, riasfaltato negli ultimi anni per favorire i sorpassi con quattro zone DRS.").build());
+        Circuito shanghai = circuitoRepository.save(Circuito.builder().name("Shanghai International Circuit").location("Shanghai").country("Cina").lengthKm(5.451).laps(56).turns(16).drsZones(2).lapRecordTime("1:32.238").lapRecordDriver("Michael Schumacher").lapRecordYear(2004).description("La curva 1 a spirale, che si stringe progressivamente, è tra le più impegnative del calendario per il carico da gestire.").build());
+        Circuito suzuka = circuitoRepository.save(Circuito.builder().name("Suzuka International Racing Course").location("Suzuka").country("Giappone").lengthKm(5.807).laps(53).turns(18).drsZones(1).lapRecordTime("1:30.983").lapRecordDriver("Lewis Hamilton").lapRecordYear(2019).description("Unico circuito a forma di otto del calendario, con la celebre curva Esses che mette alla prova l'equilibrio della vettura.").build());
+        Circuito miami = circuitoRepository.save(Circuito.builder().name("Miami International Autodrome").location("Miami").country("Stati Uniti").lengthKm(5.412).laps(57).turns(19).drsZones(3).lapRecordTime("1:29.708").lapRecordDriver("Max Verstappen").lapRecordYear(2023).description("Tracciato semi-cittadino attorno all'Hard Rock Stadium, con un lungo rettilineo e una sezione di curve a bassa velocità.").build());
+        Circuito gillesVilleneuve = circuitoRepository.save(Circuito.builder().name("Circuit Gilles-Villeneuve").location("Montreal").country("Canada").lengthKm(4.361).laps(70).turns(14).drsZones(3).lapRecordTime("1:13.078").lapRecordDriver("Valtteri Bottas").lapRecordYear(2019).description("Ricavato su un'isola artificiale: lunghi rettilinei alternati a chicane strette, con il celebre 'muro dei campioni' all'ultima curva.").build());
+        Circuito monaco = circuitoRepository.save(Circuito.builder().name("Circuit de Monaco").location("Monte Carlo").country("Monaco").lengthKm(3.337).laps(78).turns(19).drsZones(1).lapRecordTime("1:12.909").lapRecordDriver("Lewis Hamilton").lapRecordYear(2021).description("Il tracciato più stretto e lento del calendario, dove il sorpasso in pista è quasi impossibile e la qualifica conta più che altrove.").build());
+        Circuito barcelona = circuitoRepository.save(Circuito.builder().name("Circuit de Barcelona-Catalunya").location("Montmeló").country("Spagna").lengthKm(4.657).laps(66).turns(14).drsZones(2).lapRecordTime("1:16.330").lapRecordDriver("Max Verstappen").lapRecordYear(2023).description("Curve ad alto carico aerodinamico che per decenni hanno ospitato i test pre-stagionali, mettendo alla prova ogni comparto della vettura.").build());
+        Circuito redBullRing = circuitoRepository.save(Circuito.builder().name("Red Bull Ring").location("Spielberg").country("Austria").lengthKm(4.318).laps(71).turns(10).drsZones(3).lapRecordTime("1:05.619").lapRecordDriver("Carlos Sainz").lapRecordYear(2020).description("Il circuito permanente più corto del calendario, con forti pendenze e rettilinei brevi ma intensi.").build());
+        Circuito silverstone = circuitoRepository.save(Circuito.builder().name("Silverstone Circuit").location("Silverstone").country("Regno Unito").lengthKm(5.891).laps(52).turns(18).drsZones(2).lapRecordTime("1:27.097").lapRecordDriver("Max Verstappen").lapRecordYear(2020).description("La culla della Formula 1, famosa per il susseguirsi di curve veloci Maggots-Becketts-Chapel prese quasi a pieno gas.").build());
+        Circuito spa = circuitoRepository.save(Circuito.builder().name("Circuit de Spa-Francorchamps").location("Stavelot").country("Belgio").lengthKm(7.004).laps(44).turns(19).drsZones(2).lapRecordTime("1:46.286").lapRecordDriver("Valtteri Bottas").lapRecordYear(2018).description("Il circuito più lungo del calendario, reso leggendario dalla salita dell'Eau Rouge-Raidillon presa in pieno carico.").build());
+        Circuito hungaroring = circuitoRepository.save(Circuito.builder().name("Hungaroring").location("Mogyoród").country("Ungheria").lengthKm(4.381).laps(70).turns(14).drsZones(1).lapRecordTime("1:16.627").lapRecordDriver("Lewis Hamilton").lapRecordYear(2020).description("Soprannominato 'Monaco senza guardrail': tracciato tortuoso dove il sorpasso in pista è raro e la strategia conta molto.").build());
+        Circuito zandvoort = circuitoRepository.save(Circuito.builder().name("Circuit Zandvoort").location("Zandvoort").country("Paesi Bassi").lengthKm(4.259).laps(72).turns(14).drsZones(2).lapRecordTime("1:11.097").lapRecordDriver("Lewis Hamilton").lapRecordYear(2021).description("Tracciato costiero tra le dune, con curve sopraelevate uniche nel calendario che permettono velocità sorprendenti in ingresso curva.").build());
+        Circuito monza = circuitoRepository.save(Circuito.builder().name("Autodromo Nazionale Monza").location("Monza").country("Italia").lengthKm(5.793).laps(53).turns(11).drsZones(2).lapRecordTime("1:21.046").lapRecordDriver("Rubens Barrichello").lapRecordYear(2004).description("Il tempio della velocità: rettilinei lunghissimi e frenate durissime alle chicane, poco carico aerodinamico richiesto.").build());
+        Circuito madring = circuitoRepository.save(Circuito.builder().name("Madring").location("Madrid").country("Spagna").lengthKm(5.416).laps(57).turns(22).drsZones(2).description("Debutto assoluto nel 2026: circuito ibrido cittadino con 'La Monumental', la curva sopraelevata più lunga di tutto il calendario.").build());
+        Circuito baku = circuitoRepository.save(Circuito.builder().name("Baku City Circuit").location("Baku").country("Azerbaigian").lengthKm(6.003).laps(51).turns(20).drsZones(2).lapRecordTime("1:43.009").lapRecordDriver("Charles Leclerc").lapRecordYear(2019).description("Combina un rettilineo lunghissimo lungo il mar Caspio con la sezione più stretta del calendario, tra le mura della città vecchia.").build());
+        Circuito bahrain = circuitoRepository.save(Circuito.builder().name("Bahrain International Circuit").location("Sakhir").country("Bahrein").lengthKm(5.412).laps(57).turns(15).drsZones(3).lapRecordTime("1:31.447").lapRecordDriver("Pedro de la Rosa").lapRecordYear(2005).description("Pista nel deserto che per anni ha aperto la stagione, superficie molto abrasiva che stressa parecchio le gomme.").build());
+        Circuito singapore = circuitoRepository.save(Circuito.builder().name("Marina Bay Street Circuit").location("Singapore").country("Singapore").lengthKm(4.940).laps(62).turns(19).drsZones(2).lapRecordTime("1:34.486").lapRecordDriver("Daniel Ricciardo").lapRecordYear(2024).description("L'unica gara notturna storica del calendario su strade cittadine, fisicamente durissima per il caldo e l'umidità.").build());
+        Circuito austin = circuitoRepository.save(Circuito.builder().name("Circuit of the Americas").location("Austin").country("Stati Uniti").lengthKm(5.513).laps(56).turns(20).drsZones(2).lapRecordTime("1:36.169").lapRecordDriver("Charles Leclerc").lapRecordYear(2019).description("Il primo tratto ricalca Silverstone, con un forte dislivello alla curva 1 ispirato al Corkscrew di Laguna Seca.").build());
+        Circuito mexicoCity = circuitoRepository.save(Circuito.builder().name("Autódromo Hermanos Rodríguez").location("Città del Messico").country("Messico").lengthKm(4.304).laps(71).turns(17).drsZones(3).lapRecordTime("1:17.774").lapRecordDriver("Valtteri Bottas").lapRecordYear(2021).description("L'altitudine di oltre 2200 metri riduce la densità dell'aria, penalizzando il carico aerodinamico e il raffreddamento dei motori.").build());
+        Circuito interlagos = circuitoRepository.save(Circuito.builder().name("Autódromo José Carlos Pace").location("San Paolo").country("Brasile").lengthKm(4.309).laps(71).turns(15).drsZones(2).lapRecordTime("1:10.540").lapRecordDriver("Valtteri Bottas").lapRecordYear(2018).description("Percorso in senso antiorario con forti saliscendi, spesso teatro di gare bagnate e sorpassi spettacolari.").build());
+        Circuito lasVegas = circuitoRepository.save(Circuito.builder().name("Las Vegas Strip Circuit").location("Las Vegas").country("Stati Uniti").lengthKm(6.201).laps(50).turns(17).drsZones(2).lapRecordTime("1:33.365").lapRecordDriver("Lando Norris").lapRecordYear(2024).description("Gara notturna sulla Strip, con rettilinei lunghissimi che regalano alcune delle velocità di punta più alte della stagione.").build());
+        Circuito lusail = circuitoRepository.save(Circuito.builder().name("Lusail International Circuit").location("Lusail").country("Qatar").lengthKm(5.419).laps(57).turns(16).drsZones(2).lapRecordTime("1:22.384").lapRecordDriver("Lando Norris").lapRecordYear(2024).description("Curve veloci e fluide che si susseguono senza sosta, tra i tracciati fisicamente più impegnativi per il collo dei piloti.").build());
+        Circuito yasMarina = circuitoRepository.save(Circuito.builder().name("Yas Marina Circuit").location("Abu Dhabi").country("Emirati Arabi Uniti").lengthKm(5.281).laps(58).turns(16).drsZones(2).lapRecordTime("1:26.103").lapRecordDriver("Max Verstappen").lapRecordYear(2021).description("Gara che si corre al tramonto fino a sera, tradizionalmente l'ultimo appuntamento della stagione.").build());
+
+        eventoRepository.saveAll(List.of(
+                Evento.builder().name("Gp del Giappone").circuito(suzuka).date(LocalDate.of(2026, 3, 27)).status(EventStatus.CONCLUSO).build(),
+                Evento.builder().name("Gp del Bahrain").circuito(bahrain).date(LocalDate.of(2026, 10, 2)).status(EventStatus.PROGRAMMATO).build(),
+                Evento.builder().name("Gp d'Italia").circuito(monza).date(LocalDate.of(2026, 9, 6)).status(EventStatus.PROGRAMMATO).build(),
+                Evento.builder().name("Gp di Spagna").circuito(madring).date(LocalDate.of(2026, 9, 13)).status(EventStatus.PROGRAMMATO).build()
+        ));
+
+        System.out.println("Seed circuiti/eventi: " + circuitoRepository.count() + " circuiti, " + eventoRepository.count() + " eventi.");
     }
 }
