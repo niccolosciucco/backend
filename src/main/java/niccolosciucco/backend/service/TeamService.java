@@ -3,7 +3,9 @@ package niccolosciucco.backend.service;
 import lombok.RequiredArgsConstructor;
 import niccolosciucco.backend.entity.Team;
 import niccolosciucco.backend.exception.DuplicateResourceException;
+import niccolosciucco.backend.exception.ResourceInUseException;
 import niccolosciucco.backend.exception.ResourceNotFoundException;
+import niccolosciucco.backend.repository.PilotaRepository;
 import niccolosciucco.backend.repository.TeamRepository;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,7 @@ import java.util.UUID;
 public class TeamService {
 
     private final TeamRepository teamRepository;
+    private final PilotaRepository pilotaRepository;
 
     public List<Team> getAll() {
         return teamRepository.findAll();
@@ -45,6 +48,9 @@ public class TeamService {
     public void delete(UUID id) {
         if (!teamRepository.existsById(id)) {
             throw new ResourceNotFoundException("Team non trovato: " + id);
+        }
+        if (pilotaRepository.existsByTeamId(id)) {
+            throw new ResourceInUseException("Impossibile eliminare: ci sono ancora piloti assegnati a questo team. Riassegnali o eliminali prima.");
         }
         teamRepository.deleteById(id);
     }
