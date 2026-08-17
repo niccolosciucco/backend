@@ -3,8 +3,10 @@ package niccolosciucco.backend.service;
 import lombok.RequiredArgsConstructor;
 import niccolosciucco.backend.entity.Circuito;
 import niccolosciucco.backend.exception.DuplicateResourceException;
+import niccolosciucco.backend.exception.ResourceInUseException;
 import niccolosciucco.backend.exception.ResourceNotFoundException;
 import niccolosciucco.backend.repository.CircuitoRepository;
+import niccolosciucco.backend.repository.EventoRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,6 +17,7 @@ import java.util.UUID;
 public class CircuitoService {
 
     private final CircuitoRepository circuitoRepository;
+    private final EventoRepository eventoRepository;
 
     public List<Circuito> getAll() {
         return circuitoRepository.findAll();
@@ -51,6 +54,9 @@ public class CircuitoService {
     public void delete(UUID id) {
         if (!circuitoRepository.existsById(id)) {
             throw new ResourceNotFoundException("Circuito non trovato: " + id);
+        }
+        if (eventoRepository.existsByCircuitoId(id)) {
+            throw new ResourceInUseException("Impossibile eliminare: ci sono ancora eventi collegati a questo circuito. Riassegnali o eliminali prima.");
         }
         circuitoRepository.deleteById(id);
     }
