@@ -8,4 +8,6 @@ import java.util.UUID;
 
 public interface PilotaRepository extends JpaRepository<Pilota, UUID> {
     List<Pilota> findByTeamId(UUID teamId);
+
+    boolean existsByTeamId(UUID teamId);
 }
