@@ -72,7 +72,7 @@ public class RaceSimulationService {
         return state;
     }
 
-    @Scheduled(fixedRate = 3000)
+    @Scheduled(fixedRate = 4000)
     public void tick() {
         if (state.isFinished()) {
             return;
