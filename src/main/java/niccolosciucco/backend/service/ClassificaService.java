@@ -7,13 +7,12 @@ import niccolosciucco.backend.entity.Pilota;
 import niccolosciucco.backend.entity.PilotaRisultato;
 import niccolosciucco.backend.entity.RaceResultStatus;
 import niccolosciucco.backend.entity.Team;
+import niccolosciucco.backend.repository.PilotaRepository;
 import niccolosciucco.backend.repository.PilotaRisultatoRepository;
+import niccolosciucco.backend.repository.TeamRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,6 +25,8 @@ public class ClassificaService {
     );
 
     private final PilotaRisultatoRepository pilotaRisultatoRepository;
+    private final PilotaRepository pilotaRepository;
+    private final TeamRepository teamRepository;
 
     private int calcolaPunti(PilotaRisultato risultato) {
         if (risultato.getStatus() == RaceResultStatus.DNF || risultato.getPosition() == null) {
@@ -39,42 +40,50 @@ public class ClassificaService {
     }
 
     public List<PilotaStandingDto> classificaPiloti() {
-        List<PilotaRisultato> tutti = pilotaRisultatoRepository.findAll();
-
         Map<UUID, Integer> puntiPerPilota = new LinkedHashMap<>();
         Map<UUID, Pilota> pilotiPerId = new LinkedHashMap<>();
-        for (PilotaRisultato r : tutti) {
-            UUID id = r.getPilota().getId();
-            puntiPerPilota.merge(id, calcolaPunti(r), Integer::sum);
-            pilotiPerId.putIfAbsent(id, r.getPilota());
+
+        // Si parte da TUTTI i piloti esistenti, a 0 punti: così chi non ha
+        // ancora corso una gara nello storico resta comunque in classifica.
+        for (Pilota p : pilotaRepository.findAll()) {
+            puntiPerPilota.put(p.getId(), 0);
+            pilotiPerId.put(p.getId(), p);
+        }
+
+        for (PilotaRisultato r : pilotaRisultatoRepository.findAll()) {
+            puntiPerPilota.merge(r.getPilota().getId(), calcolaPunti(r), Integer::sum);
         }
 
         return puntiPerPilota.entrySet().stream()
-                .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
                 .map(e -> {
                     Pilota p = pilotiPerId.get(e.getKey());
                     return new PilotaStandingDto(p.getId(), p.getName(), p.getTeam().getName(), e.getValue());
                 })
+                .sorted(Comparator.comparingInt(PilotaStandingDto::points).reversed()
+                        .thenComparing(PilotaStandingDto::pilotaName))
                 .collect(Collectors.toList());
     }
 
     public List<TeamStandingDto> classificaCostruttori() {
-        List<PilotaRisultato> tutti = pilotaRisultatoRepository.findAll();
-
         Map<UUID, Integer> puntiPerTeam = new LinkedHashMap<>();
         Map<UUID, Team> teamPerId = new LinkedHashMap<>();
-        for (PilotaRisultato r : tutti) {
-            Team team = r.getPilota().getTeam();
-            puntiPerTeam.merge(team.getId(), calcolaPunti(r), Integer::sum);
-            teamPerId.putIfAbsent(team.getId(), team);
+
+        for (Team t : teamRepository.findAll()) {
+            puntiPerTeam.put(t.getId(), 0);
+            teamPerId.put(t.getId(), t);
+        }
+
+        for (PilotaRisultato r : pilotaRisultatoRepository.findAll()) {
+            puntiPerTeam.merge(r.getPilota().getTeam().getId(), calcolaPunti(r), Integer::sum);
         }
 
         return puntiPerTeam.entrySet().stream()
-                .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
                 .map(e -> {
                     Team t = teamPerId.get(e.getKey());
                     return new TeamStandingDto(t.getId(), t.getName(), t.getColorHex(), e.getValue());
                 })
+                .sorted(Comparator.comparingInt(TeamStandingDto::points).reversed()
+                        .thenComparing(TeamStandingDto::teamName))
                 .collect(Collectors.toList());
     }
 }
