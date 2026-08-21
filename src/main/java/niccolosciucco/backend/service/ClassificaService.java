@@ -42,9 +42,7 @@ public class ClassificaService {
     public List<PilotaStandingDto> classificaPiloti() {
         Map<UUID, Integer> puntiPerPilota = new LinkedHashMap<>();
         Map<UUID, Pilota> pilotiPerId = new LinkedHashMap<>();
-
-        // Si parte da TUTTI i piloti esistenti, a 0 punti: così chi non ha
-        // ancora corso una gara nello storico resta comunque in classifica.
+        
         for (Pilota p : pilotaRepository.findAll()) {
             puntiPerPilota.put(p.getId(), 0);
             pilotiPerId.put(p.getId(), p);
