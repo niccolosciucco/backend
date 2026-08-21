@@ -8,7 +8,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -20,12 +23,15 @@ public class DataSeeder implements CommandLineRunner {
     private final EventoRepository eventoRepository;
     private final UtenteRepository utenteRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RisultatoGaraRepository risultatoGaraRepository;
+    private final PilotaRisultatoRepository pilotaRisultatoRepository;
 
     @Override
     public void run(String... args) {
         seedTeamsEPiloti();
         seedCircuitiEEventi();
         seedUtenti();
+        seedStorico();
     }
 
     private void seedTeamsEPiloti() {
@@ -130,5 +136,133 @@ public class DataSeeder implements CommandLineRunner {
                 .build());
 
         System.out.println("Seed utenti: " + utenteRepository.count() + " utenti.");
+    }
+
+    private void seedStorico() {
+        if (risultatoGaraRepository.count() > 0) {
+            return;
+        }
+
+        Map<String, Pilota> pilotiPerNome = pilotaRepository.findAll().stream()
+                .collect(Collectors.toMap(Pilota::getName, p -> p));
+        Map<String, Circuito> circuitiPerNome = circuitoRepository.findAll().stream()
+                .collect(Collectors.toMap(Circuito::getName, c -> c));
+
+        seedGara("Gp d'Ungheria", circuitiPerNome.get("Hungaroring"), LocalDate.of(2026, 7, 26), 70, pilotiPerNome, List.of(
+                new RisultatoSeed("Lando Norris", 0, false, true),
+                new RisultatoSeed("Max Verstappen", 15.080, false, false),
+                new RisultatoSeed("Kimi Antonelli", 18.728, false, false),
+                new RisultatoSeed("George Russell", 24.611, false, false),
+                new RisultatoSeed("Charles Leclerc", 30.955, false, false)
+        ));
+
+        seedGara("Gp del Belgio", circuitiPerNome.get("Circuit de Spa-Francorchamps"), LocalDate.of(2026, 7, 19), 44, pilotiPerNome, List.of(
+                new RisultatoSeed("Kimi Antonelli", 0, false, true),
+                new RisultatoSeed("Charles Leclerc", 1.952, false, false),
+                new RisultatoSeed("Max Verstappen", 11.586, false, false),
+                new RisultatoSeed("George Russell", 17.209, false, false),
+                new RisultatoSeed("Lewis Hamilton", 22.740, false, false)
+        ));
+
+        seedGara("Gp di Gran Bretagna", circuitiPerNome.get("Silverstone Circuit"), LocalDate.of(2026, 7, 5), 52, pilotiPerNome, List.of(
+                new RisultatoSeed("Charles Leclerc", 0, false, true),
+                new RisultatoSeed("George Russell", 0.427, false, false),
+                new RisultatoSeed("Lewis Hamilton", 0.772, false, false),
+                new RisultatoSeed("Kimi Antonelli", 6.918, false, false),
+                new RisultatoSeed("Max Verstappen", 12.304, false, false)
+        ));
+
+        seedGara("Gp d'Austria", circuitiPerNome.get("Red Bull Ring"), LocalDate.of(2026, 6, 28), 71, pilotiPerNome, List.of(
+                new RisultatoSeed("George Russell", 0, false, true),
+                new RisultatoSeed("Max Verstappen", 1.611, false, false),
+                new RisultatoSeed("Kimi Antonelli", 1.986, false, false),
+                new RisultatoSeed("Lando Norris", 8.312, false, false),
+                new RisultatoSeed("Lewis Hamilton", 14.077, false, false)
+        ));
+
+        seedGara("Gp di Barcellona-Catalogna", circuitiPerNome.get("Circuit de Barcelona-Catalunya"), LocalDate.of(2026, 6, 14), 66, pilotiPerNome, List.of(
+                new RisultatoSeed("Lewis Hamilton", 0, false, false),
+                new RisultatoSeed("George Russell", 19.561, false, false),
+                new RisultatoSeed("Lando Norris", 23.719, false, true),
+                new RisultatoSeed("Kimi Antonelli", 30.204, false, false),
+                new RisultatoSeed("Charles Leclerc", 36.550, false, false)
+        ));
+
+        seedGara("Gp di Monaco", circuitiPerNome.get("Circuit de Monaco"), LocalDate.of(2026, 6, 7), 78, pilotiPerNome, List.of(
+                new RisultatoSeed("Kimi Antonelli", 0, false, false),
+                new RisultatoSeed("Lewis Hamilton", 6.271, false, true),
+                new RisultatoSeed("Pierre Gasly", 20.369, false, false),
+                new RisultatoSeed("Charles Leclerc", 24.918, false, false),
+                new RisultatoSeed("George Russell", 29.077, false, false)
+        ));
+
+        seedGara("Gp del Canada", circuitiPerNome.get("Circuit Gilles-Villeneuve"), LocalDate.of(2026, 5, 24), 70, pilotiPerNome, List.of(
+                new RisultatoSeed("Kimi Antonelli", 0, false, false),
+                new RisultatoSeed("Lewis Hamilton", 10.768, false, false),
+                new RisultatoSeed("Max Verstappen", 11.276, false, true),
+                new RisultatoSeed("Charles Leclerc", 18.903, false, false),
+                new RisultatoSeed("George Russell", 25.611, false, false)
+        ));
+
+        seedGara("Gp di Miami", circuitiPerNome.get("Miami International Autodrome"), LocalDate.of(2026, 5, 3), 57, pilotiPerNome, List.of(
+                new RisultatoSeed("Kimi Antonelli", 0, false, false),
+                new RisultatoSeed("Lando Norris", 3.264, false, false),
+                new RisultatoSeed("Oscar Piastri", 27.092, false, true),
+                new RisultatoSeed("George Russell", 33.417, false, false),
+                new RisultatoSeed("Lewis Hamilton", 39.802, false, false)
+        ));
+
+        seedGara("Gp del Giappone", circuitiPerNome.get("Suzuka International Racing Course"), LocalDate.of(2026, 3, 29), 53, pilotiPerNome, List.of(
+                new RisultatoSeed("Kimi Antonelli", 0, false, false),
+                new RisultatoSeed("Oscar Piastri", 13.722, false, false),
+                new RisultatoSeed("Charles Leclerc", 15.270, false, true),
+                new RisultatoSeed("George Russell", 21.055, false, false),
+                new RisultatoSeed("Lando Norris", 27.398, false, false)
+        ));
+
+        seedGara("Gp di Cina", circuitiPerNome.get("Shanghai International Circuit"), LocalDate.of(2026, 3, 15), 56, pilotiPerNome, List.of(
+                new RisultatoSeed("Kimi Antonelli", 0, false, true),
+                new RisultatoSeed("George Russell", 5.515, false, false),
+                new RisultatoSeed("Lewis Hamilton", 25.267, false, false),
+                new RisultatoSeed("Charles Leclerc", 31.204, false, false),
+                new RisultatoSeed("Max Verstappen", 38.910, false, false)
+        ));
+
+        seedGara("Gp d'Australia", circuitiPerNome.get("Albert Park Circuit"), LocalDate.of(2026, 3, 8), 58, pilotiPerNome, List.of(
+                new RisultatoSeed("George Russell", 0, false, true),
+                new RisultatoSeed("Kimi Antonelli", 2.974, false, false),
+                new RisultatoSeed("Charles Leclerc", 15.519, false, false),
+                new RisultatoSeed("Oscar Piastri", 22.108, false, false),
+                new RisultatoSeed("Lando Norris", 28.554, false, false)
+        ));
+
+        System.out.println("Seed storico: " + risultatoGaraRepository.count() + " gare, " + pilotaRisultatoRepository.count() + " risultati.");
+    }
+
+    private void seedGara(String nome, Circuito circuito, LocalDate data, int giri, Map<String, Pilota> pilotiPerNome, List<RisultatoSeed> risultatiSeed) {
+        RisultatoGara gara = risultatoGaraRepository.save(RisultatoGara.builder()
+                .name(nome)
+                .circuito(circuito)
+                .date(data)
+                .laps(giri)
+                .build());
+
+        List<PilotaRisultato> risultati = new ArrayList<>();
+        for (int i = 0; i < risultatiSeed.size(); i++) {
+            RisultatoSeed rs = risultatiSeed.get(i);
+            Pilota pilota = pilotiPerNome.get(rs.pilotaName());
+            risultati.add(PilotaRisultato.builder()
+                    .risultatoGara(gara)
+                    .pilota(pilota)
+                    .position(rs.dnf() ? null : i + 1)
+                    .gapSeconds(rs.dnf() ? null : rs.gapSeconds())
+                    .status(rs.dnf() ? RaceResultStatus.DNF : RaceResultStatus.FINISHED)
+                    .fastestLap(rs.fastestLap())
+                    .build());
+        }
+        pilotaRisultatoRepository.saveAll(risultati);
+    }
+
+    private record RisultatoSeed(String pilotaName, double gapSeconds, boolean dnf, boolean fastestLap) {
     }
 }
