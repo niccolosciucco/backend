@@ -246,7 +246,7 @@ public class DataSeeder implements CommandLineRunner {
         System.out.println("Seed storico: " + risultatoGaraRepository.count() + " gare, " + pilotaRisultatoRepository.count() + " risultati.");
     }
 
-    private void seedGara(String nome, Circuito circuito, LocalDate data, int giri, Map<String, Pilota> pilotiPerNome, List<RisultatoSeed> risultatiSeed) {
+    private void seedGara(String nome, Circuito circuito, LocalDate data, int giri, Map<String, Pilota> pilotiPerNome, List<RisultatoSeed> primiCinque) {
         RisultatoGara gara = risultatoGaraRepository.save(RisultatoGara.builder()
                 .name(nome)
                 .circuito(circuito)
@@ -255,8 +255,10 @@ public class DataSeeder implements CommandLineRunner {
                 .build());
 
         List<PilotaRisultato> risultati = new ArrayList<>();
-        for (int i = 0; i < risultatiSeed.size(); i++) {
-            RisultatoSeed rs = risultatiSeed.get(i);
+
+        // Posizioni 1-5: i risultati specifici già decisi per questa gara.
+        for (int i = 0; i < primiCinque.size(); i++) {
+            RisultatoSeed rs = primiCinque.get(i);
             Pilota pilota = pilotiPerNome.get(rs.pilotaName());
             risultati.add(PilotaRisultato.builder()
                     .risultatoGara(gara)
@@ -267,6 +269,28 @@ public class DataSeeder implements CommandLineRunner {
                     .fastestLap(rs.fastestLap())
                     .build());
         }
+        
+        List<String> nomiGiaAssegnati = primiCinque.stream().map(RisultatoSeed::pilotaName).toList();
+        double ultimoGap = primiCinque.get(primiCinque.size() - 1).gapSeconds();
+        int posizione = primiCinque.size() + 1;
+
+        for (String nomePilota : ORDINE_PILOTI) {
+            if (nomiGiaAssegnati.contains(nomePilota)) {
+                continue;
+            }
+            double gap = ultimoGap + 5 + (posizione - primiCinque.size() - 1) * 3.5;
+            Pilota pilota = pilotiPerNome.get(nomePilota);
+            risultati.add(PilotaRisultato.builder()
+                    .risultatoGara(gara)
+                    .pilota(pilota)
+                    .position(posizione)
+                    .gapSeconds(gap)
+                    .status(RaceResultStatus.FINISHED)
+                    .fastestLap(false)
+                    .build());
+            posizione++;
+        }
+
         pilotaRisultatoRepository.saveAll(risultati);
     }
 
