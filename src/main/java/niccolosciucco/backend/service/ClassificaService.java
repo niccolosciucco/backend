@@ -5,7 +5,6 @@ import niccolosciucco.backend.dto.PilotaStandingDto;
 import niccolosciucco.backend.dto.TeamStandingDto;
 import niccolosciucco.backend.entity.Pilota;
 import niccolosciucco.backend.entity.PilotaRisultato;
-import niccolosciucco.backend.entity.RaceResultStatus;
 import niccolosciucco.backend.entity.Team;
 import niccolosciucco.backend.repository.PilotaRepository;
 import niccolosciucco.backend.repository.PilotaRisultatoRepository;
@@ -19,37 +18,21 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ClassificaService {
 
-    private static final Map<Integer, Integer> PUNTI_PER_POSIZIONE = Map.ofEntries(
-            Map.entry(1, 25), Map.entry(2, 18), Map.entry(3, 15), Map.entry(4, 12), Map.entry(5, 10),
-            Map.entry(6, 8), Map.entry(7, 6), Map.entry(8, 4), Map.entry(9, 2), Map.entry(10, 1)
-    );
-
     private final PilotaRisultatoRepository pilotaRisultatoRepository;
     private final PilotaRepository pilotaRepository;
     private final TeamRepository teamRepository;
 
-    private int calcolaPunti(PilotaRisultato risultato) {
-        if (risultato.getStatus() == RaceResultStatus.DNF || risultato.getPosition() == null) {
-            return 0;
-        }
-        int punti = PUNTI_PER_POSIZIONE.getOrDefault(risultato.getPosition(), 0);
-        if (risultato.isFastestLap() && risultato.getPosition() <= 10) {
-            punti += 1;
-        }
-        return punti;
-    }
-
     public List<PilotaStandingDto> classificaPiloti() {
         Map<UUID, Integer> puntiPerPilota = new LinkedHashMap<>();
         Map<UUID, Pilota> pilotiPerId = new LinkedHashMap<>();
-        
+
         for (Pilota p : pilotaRepository.findAll()) {
             puntiPerPilota.put(p.getId(), 0);
             pilotiPerId.put(p.getId(), p);
         }
 
         for (PilotaRisultato r : pilotaRisultatoRepository.findAll()) {
-            puntiPerPilota.merge(r.getPilota().getId(), calcolaPunti(r), Integer::sum);
+            puntiPerPilota.merge(r.getPilota().getId(), PuntiF1.calcola(r), Integer::sum);
         }
 
         return puntiPerPilota.entrySet().stream()
@@ -72,7 +55,7 @@ public class ClassificaService {
         }
 
         for (PilotaRisultato r : pilotaRisultatoRepository.findAll()) {
-            puntiPerTeam.merge(r.getPilota().getTeam().getId(), calcolaPunti(r), Integer::sum);
+            puntiPerTeam.merge(r.getPilota().getTeam().getId(), PuntiF1.calcola(r), Integer::sum);
         }
 
         return puntiPerTeam.entrySet().stream()
