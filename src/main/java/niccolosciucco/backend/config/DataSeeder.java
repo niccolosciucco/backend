@@ -17,6 +17,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DataSeeder implements CommandLineRunner {
 
+    private static final List<String> ORDINE_PILOTI = List.of(
+            "Kimi Antonelli", "George Russell", "Charles Leclerc", "Lewis Hamilton", "Lando Norris",
+            "Max Verstappen", "Oscar Piastri", "Isack Hadjar", "Fernando Alonso", "Lance Stroll",
+            "Carlos Sainz", "Alex Albon", "Pierre Gasly", "Franco Colapinto", "Esteban Ocon",
+            "Oliver Bearman", "Liam Lawson", "Arvid Lindblad", "Nico Hülkenberg", "Gabriel Bortoleto",
+            "Sergio Perez", "Valtteri Bottas"
+    );
     private final TeamRepository teamRepository;
     private final PilotaRepository pilotaRepository;
     private final CircuitoRepository circuitoRepository;
