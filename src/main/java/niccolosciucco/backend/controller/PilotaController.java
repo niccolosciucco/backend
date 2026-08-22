@@ -4,9 +4,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import niccolosciucco.backend.dto.PilotaRequest;
 import niccolosciucco.backend.dto.PilotaResponse;
+import niccolosciucco.backend.dto.PilotaStatsDto;
 import niccolosciucco.backend.entity.Pilota;
 import niccolosciucco.backend.entity.Team;
 import niccolosciucco.backend.service.PilotaService;
+import niccolosciucco.backend.service.PilotaStatsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 public class PilotaController {
 
     private final PilotaService pilotaService;
+    private final PilotaStatsService pilotaStatsService;
 
     @GetMapping
     public List<PilotaResponse> getAll() {
@@ -30,6 +33,11 @@ public class PilotaController {
     @GetMapping("/{id}")
     public PilotaResponse getById(@PathVariable UUID id) {
         return PilotaResponse.from(pilotaService.getById(id));
+    }
+
+    @GetMapping("/{id}/stats")
+    public PilotaStatsDto getStats(@PathVariable UUID id) {
+        return pilotaStatsService.getStats(id);
     }
 
     @PostMapping
